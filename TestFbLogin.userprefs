@@ -1,0 +1,30 @@
+﻿<Properties StartupConfiguration="{1FDB8905-62E0-4D22-A9D1-9367076317FC}|Default">
+  <MonoDevelop.Ide.ItemProperties.TestFbLogin.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.D0B1CC80-E880-4373-8312-CD51E98DA0D3">
+    <MonoDevelop.MacDev.AppleDevelopmentTeam />
+  </MonoDevelop.Ide.ItemProperties.TestFbLogin.iOS>
+  <MonoDevelop.Ide.Workbench ActiveDocument="ViewController.cs">
+    <Files>
+      <File FileName="AppDelegate.cs" Line="13" Column="45" />
+      <File FileName="ViewController.cs" Line="77" Column="19" />
+      <File FileName="Main.cs" Line="16" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="TestFbLogin" expanded="True">
+            <Node name="TestFbLogin.iOS" expanded="True">
+              <Node name="Packages" expanded="True" />
+              <Node name="ViewController.cs" expanded="True" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>
