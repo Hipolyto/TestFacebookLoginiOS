@@ -12,6 +12,8 @@ namespace TestFbLogin.iOS
         string appId = "156655054932201";
         string appName = "Nuevo Leon Turismo";
 
+        public static string FacebookToken;
+        public static string FacebookUserId;
         // class-level declarations
 
         public override UIWindow Window
@@ -56,6 +58,7 @@ namespace TestFbLogin.iOS
         {
             // Restart any tasks that were paused (or not yet started) while the application was inactive. 
             // If the application was previously in the background, optionally refresh the user interface.
+            CheckLogin();
         }
 
         public override void WillTerminate(UIApplication application)
@@ -67,6 +70,20 @@ namespace TestFbLogin.iOS
         {
             // return base.OpenUrl(application, url, sourceApplication, annotation);
             return ApplicationDelegate.SharedInstance.OpenUrl(application, url, sourceApplication, annotation);
+        }
+
+        void CheckLogin()
+        {
+            if (AccessToken.CurrentAccessToken != null)
+            {
+                FacebookToken = AccessToken.CurrentAccessToken.TokenString;
+                FacebookUserId = AccessToken.CurrentAccessToken.UserID;
+            }
+            else
+            {
+                FacebookToken = null;
+                FacebookUserId = null;
+            }
         }
     }
 }

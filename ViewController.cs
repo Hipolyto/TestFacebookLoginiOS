@@ -20,7 +20,15 @@ namespace TestFbLogin.iOS
         LoginButton loginView;
         ProfilePictureView pictureView;
         UILabel nameLabel;
+        UIButton loginButton;
 
+        public bool IsFacebookUserLogin
+        {
+            get
+            {
+                return AccessToken.CurrentAccessToken != null;
+            }
+        }
 
         protected ViewController(IntPtr handle) : base(handle)
         {
@@ -35,43 +43,49 @@ namespace TestFbLogin.iOS
             // If was send true to Profile.EnableUpdatesOnAccessTokenChange method
             // this notification will be called after the user is logged in and
             // after the AccessToken is gotten
-            Profile.Notifications.ObserveDidChange((sender, e) => {
+            Profile.Notifications.ObserveDidChange((sender, e) => 
+            {
 
                 if (e.NewProfile == null)
+                {
+                    UpdateProfile(null);
                     return;
+                }
 
-                nameLabel.Text = e.NewProfile.Name;
+                UpdateProfile(e.NewProfile);
             });
 
+            Profile.EnableUpdatesOnAccessTokenChange(true);
+            AccessToken.Notifications.ObserveDidChange((sender, e) =>
+            {
+                UpdateVars();
+
+                if (e.NewToken == null)
+                {
+                    UpdateProfile(null);
+                    return;
+                }
+
+                UpdateProfile(Profile.CurrentProfile);
+            });
+
+            // The user image profile is set automatically once is logged in
+            pictureView = new ProfilePictureView(new CGRect(50, 50, 220, 220));
+
             // Set the Read and Publish permissions you want to get
-            loginView = new LoginButton(new CGRect(51, 0, 218, 46))
+            loginView = new LoginButton(new CGRect(51, 20, 218, 46))
             {
                 LoginBehavior = LoginBehavior.Native,
                 ReadPermissions = readPermissions.ToArray()
             };
 
             // Handle actions once the user is logged in
-            loginView.Completed += (sender, e) => {
-                if (e.Error != null)
-                {
-                    // Handle if there was an error
-                }
-
-                if (e.Result.IsCancelled)
-                {
-                    // Handle if the user cancelled the login request
-                }
-
-                // Handle your successful login
-            };
-
+            loginView.Completed += LoginView_Completed;
             // Handle actions once the user is logged out
-            loginView.LoggedOut += (sender, e) => {
-                // Handle your logout
-            };
+            loginView.LoggedOut += LoginView_LoggedOut;
 
-            // The user image profile is set automatically once is logged in
-            pictureView = new ProfilePictureView(new CGRect(50, 50, 220, 220));
+
+
 
             // Create the label that will hold user's facebook name
             nameLabel = new UILabel(new RectangleF(20, 319, 280, 21))
@@ -80,18 +94,127 @@ namespace TestFbLogin.iOS
                 BackgroundColor = UIColor.Clear
             };
 
+
+            loginButton = new UIButton(new RectangleF(51, 350, 218, 46));
+            loginButton.SetTitle("Log In Facebook", UIControlState.Normal);
+            loginButton.Tag = 1;
+            loginButton.TouchUpInside += (sender, e) =>
+            {
+                var loginManager = new LoginManager();
+                if (loginButton.Tag == 1) // login
+                {
+                    loginManager.LogInWithReadPermissions(readPermissions.ToArray(), this, HandleLoginManagerRequestTokenHandler);
+                }
+                else
+                {
+                    loginManager.LogOut();
+                    UpdateVars();
+                    UpdateProfile(null);
+                }
+            };
+
+
             // Add views to main view
             View.AddSubview(loginView);
             View.AddSubview(pictureView);
             View.AddSubview(nameLabel);
+            View.AddSubview(loginButton);
 
             loginView.LoginBehavior = LoginBehavior.Native;
         }
+
+
 
         public override void DidReceiveMemoryWarning()
         {
             base.DidReceiveMemoryWarning();
             // Release any cached data, images, etc that aren't in use.
+        }
+
+        void HandleLoginManagerRequestTokenHandler(LoginManagerLoginResult result, Foundation.NSError error)
+        {
+            LoginResult(result, error);
+        }
+
+        void LoginView_Completed(object sender, LoginButtonCompletedEventArgs e)
+        {
+            LoginResult(e.Result, e.Error);
+        }
+
+        void LoginResult(LoginManagerLoginResult result, Foundation.NSError error)
+        {
+            UpdateVars();
+
+            if (error != null)
+            {
+                // Handle if there was an error
+                UpdateProfile(null);
+            }
+            else if (result.IsCancelled)
+            {
+                // Handle if the user cancelled the login request
+                // Handle your successful login
+                UpdateProfile(null);
+            }
+            else
+            {
+                // Handle your successful login
+                UpdateProfile(Profile.CurrentProfile);
+            }
+        }
+
+        void LoginView_LoggedOut(object sender, EventArgs e)
+        {
+            // Handle your logout
+            // Handle your successful login
+            UpdateVars();
+            UpdateProfile(null);
+        }
+
+        void UpdateVars()
+        {
+            if (AccessToken.CurrentAccessToken != null)
+            {
+                AppDelegate.FacebookToken = AccessToken.CurrentAccessToken.TokenString;
+                AppDelegate.FacebookUserId = AccessToken.CurrentAccessToken.UserID;
+            }
+            else
+            {
+                AppDelegate.FacebookToken = null;
+                AppDelegate.FacebookUserId = null;
+            }
+        }
+
+        void CheckLogin()
+        {
+            if (!string.IsNullOrWhiteSpace(AppDelegate.FacebookToken))
+            {
+                if (AppDelegate.FacebookUserId != null)
+                {
+                    pictureView.ProfileId = AppDelegate.FacebookUserId;
+                }
+                UpdateProfile(Profile.CurrentProfile);
+            }
+            else
+            {
+                UpdateProfile(null);
+            }
+        }
+
+        void UpdateProfile(Profile profile)
+        {
+            if (profile != null)
+            {
+                nameLabel.Text = profile.Name;
+                loginButton.SetTitle("Log Out Facebook", UIControlState.Normal);
+                loginButton.Tag = 2;
+            }
+            else
+            {
+                nameLabel.Text = "Name";
+                loginButton.SetTitle("Log In Facebook", UIControlState.Normal);
+                loginButton.Tag = 1;
+            }
         }
     }
 }

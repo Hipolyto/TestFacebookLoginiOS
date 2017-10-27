@@ -8,18 +8,6 @@
       <File FileName="ViewController.cs" Line="77" Column="19" />
       <File FileName="Main.cs" Line="16" Column="1" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="TestFbLogin" expanded="True">
-            <Node name="TestFbLogin.iOS" expanded="True">
-              <Node name="Packages" expanded="True" />
-              <Node name="ViewController.cs" expanded="True" selected="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
