@@ -51,8 +51,10 @@ namespace TestFbLogin.iOS
                     UpdateProfile(null);
                     return;
                 }
-
-                UpdateProfile(e.NewProfile);
+                else
+                {
+                    UpdateProfile(e.NewProfile);
+                }
             });
 
             Profile.EnableUpdatesOnAccessTokenChange(true);
@@ -62,11 +64,11 @@ namespace TestFbLogin.iOS
 
                 if (e.NewToken == null)
                 {
-                    UpdateProfile(null);
+                    //UpdateProfile(null);
                     return;
                 }
 
-                UpdateProfile(Profile.CurrentProfile);
+                 //UpdateProfile(Profile.CurrentProfile);
             });
 
             // The user image profile is set automatically once is logged in
@@ -78,12 +80,11 @@ namespace TestFbLogin.iOS
                 LoginBehavior = LoginBehavior.Native,
                 ReadPermissions = readPermissions.ToArray()
             };
-
             // Handle actions once the user is logged in
             loginView.Completed += LoginView_Completed;
             // Handle actions once the user is logged out
             loginView.LoggedOut += LoginView_LoggedOut;
-
+            loginView.LoginBehavior = LoginBehavior.Native;
 
 
 
@@ -95,12 +96,15 @@ namespace TestFbLogin.iOS
             };
 
 
-            loginButton = new UIButton(new RectangleF(51, 350, 218, 46));
+            loginButton = new UIButton(new RectangleF(51, 350, 218, 100));
+            loginButton.BackgroundColor = UIColor.Blue;
             loginButton.SetTitle("Log In Facebook", UIControlState.Normal);
             loginButton.Tag = 1;
             loginButton.TouchUpInside += (sender, e) =>
             {
                 var loginManager = new LoginManager();
+                loginManager.LoginBehavior = LoginBehavior.Native;
+                loginManager.DefaultAudience = DefaultAudience.Everyone;
                 if (loginButton.Tag == 1) // login
                 {
                     loginManager.LogInWithReadPermissions(readPermissions.ToArray(), this, HandleLoginManagerRequestTokenHandler);
@@ -108,10 +112,11 @@ namespace TestFbLogin.iOS
                 else
                 {
                     loginManager.LogOut();
-                    UpdateVars();
-                    UpdateProfile(null);
+                    // UpdateVars();
+                    // UpdateProfile(null);
                 }
             };
+
 
 
             // Add views to main view
@@ -120,7 +125,7 @@ namespace TestFbLogin.iOS
             View.AddSubview(nameLabel);
             View.AddSubview(loginButton);
 
-            loginView.LoginBehavior = LoginBehavior.Native;
+            CheckLogin();
         }
 
 
@@ -143,32 +148,32 @@ namespace TestFbLogin.iOS
 
         void LoginResult(LoginManagerLoginResult result, Foundation.NSError error)
         {
-            UpdateVars();
+            //UpdateVars();
 
             if (error != null)
             {
                 // Handle if there was an error
-                UpdateProfile(null);
+                //UpdateProfile(null);
             }
             else if (result.IsCancelled)
             {
                 // Handle if the user cancelled the login request
                 // Handle your successful login
-                UpdateProfile(null);
+                //UpdateProfile(null);
             }
             else
             {
                 // Handle your successful login
-                UpdateProfile(Profile.CurrentProfile);
+                //UpdateProfile(Profile.CurrentProfile);
             }
         }
 
         void LoginView_LoggedOut(object sender, EventArgs e)
         {
             // Handle your logout
-            // Handle your successful login
-            UpdateVars();
-            UpdateProfile(null);
+
+            //UpdateVars();
+            //UpdateProfile(null);
         }
 
         void UpdateVars()
@@ -187,16 +192,14 @@ namespace TestFbLogin.iOS
 
         void CheckLogin()
         {
-            if (!string.IsNullOrWhiteSpace(AppDelegate.FacebookToken))
+            if (AccessToken.CurrentAccessToken != null)
             {
-                if (AppDelegate.FacebookUserId != null)
-                {
-                    pictureView.ProfileId = AppDelegate.FacebookUserId;
-                }
+                SHowMessage("Login", "Check Login user");
                 UpdateProfile(Profile.CurrentProfile);
             }
             else
             {
+                SHowMessage("Login", "Check Login no-user");
                 UpdateProfile(null);
             }
         }
@@ -205,16 +208,29 @@ namespace TestFbLogin.iOS
         {
             if (profile != null)
             {
+                
                 nameLabel.Text = profile.Name;
                 loginButton.SetTitle("Log Out Facebook", UIControlState.Normal);
                 loginButton.Tag = 2;
             }
             else
             {
+                
                 nameLabel.Text = "Name";
                 loginButton.SetTitle("Log In Facebook", UIControlState.Normal);
                 loginButton.Tag = 1;
             }
+        }
+
+        void SHowMessage(string title, string message)
+        {
+            var alertController = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
+            alertController.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, 
+                (action) => {
+                    Console.WriteLine("OK Clicked.");
+            }));
+
+            PresentViewController(alertController, true, null);
         }
     }
 }
